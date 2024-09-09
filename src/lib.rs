@@ -9,7 +9,7 @@ use rust_htslib::bam::record::Record;
 /// for better readability we use this structure instead of passing value directly,
 /// code will be more verbose but will document itself and logic error will be easier 
 /// to avoid/catch.
-/// 
+/// We don't pay runtime cost as constant expression are computed at compile time.
 #[non_exhaustive]
 struct SamFlag;
 
@@ -27,8 +27,6 @@ impl SamFlag {
     pub const DUPLICATE: u16 = 1024;
     pub const SUPPLEMRNTARY: u16 = 2048;
 }
-
-
 
 
 pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
@@ -50,42 +48,55 @@ pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
 // Does not match proper Camel case on purpose 
 // as to avoid confusion with the first term
 #[derive(Clone, Debug, Copy, Eq, Hash, PartialEq)]
+#[allow(non_camel_case_types)]
 pub enum LibType {
     frFirstStrand,
     frSecondStrand,
     fFirstStrand,
     fSecondStrand,
     ffFirstStrand,
-    frSecondStrand,
+    ffSecondStrand,
 
 }
 
 
-
+// with branch prediction this should be fast.
 impl LibType{
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand>{
         match self{
 
             LibType::frFirstStrand => {
-                //SamFlag::FIRST_IN_PAIR + SamFlag::PAIRED + SamFlag::READ_RERVERSE
-                // need to test both approach. but it should be equivalent
-                if  check_flag(flag, 81, 32) ||
-                    check_flag(flag, 161, 16) {
+                if  check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, SamFlag::MATE_REVERSE) ||
+                    check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
+                     SamFlag::READ_RERVERSE) {
                    Some(Strand::Plus)     
                 }
-                else if  check_flag(flag, 97, 16) ||
-                    check_flag(flag, 145, 32){
+                else if  check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_RERVERSE) ||
+                    check_flag(flag,
+                        SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                        SamFlag::MATE_REVERSE){
                     Some(Strand::Minus)
                 }
                 else{None}
             },
             LibType::frSecondStrand => {
-                if  check_flag(flag, 81, 32) ||
-                    check_flag(flag, 161, 16) {
+                if  check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, SamFlag::MATE_REVERSE) ||
+                    check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
+                     SamFlag::READ_RERVERSE) {
                    Some(Strand::Minus)     
                 }
-                else if  check_flag(flag, 97, 16) ||
-                    check_flag(flag, 145, 32){
+                else if  check_flag(flag,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_RERVERSE) ||
+                    check_flag(flag,
+                        SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                        SamFlag::MATE_REVERSE){
                     Some(Strand::Plus)
                 }
                 else{None}
