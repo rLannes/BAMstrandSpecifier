@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str::FromStr;
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
 /// example: SamFlag::PAIRED
@@ -57,6 +58,35 @@ impl From<&str> for Strand {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct ParseLibType;
+/// Create a new LibType variant from a &str.
+impl FromStr for LibType {
+
+    type Err = ParseLibType;
+    fn from_str(str: &str) -> Result<Self, ParseLibType> {
+        let libtype = match str {
+                "frFirstStrand" => LibType::frFirstStrand,
+                "frSecondStrand" => LibType::frSecondStrand,
+                "fFirstStrand" => LibType::fFirstStrand,
+                "fSecondStrand" => LibType::fSecondStrand,
+                "ffFirstStrand" => LibType::ffFirstStrand,
+                "ffSecondStrand" => LibType::ffSecondStrand,
+                "rfFirstStrand" => LibType::rfFirstStrand,
+                "rfSecondStrand" => LibType::rfSecondStrand,
+                "rFirstStrand" => LibType::rFirstStrand,
+                "rSecondStrand" => LibType::rSecondStrand,
+                _ => LibType::Invalid
+            };
+        if libtype == LibType::Invalid{
+            return Err(ParseLibType);
+        }
+        return Ok(libtype)
+    }
+        
+}
+    
+
 pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     //binary flag check
     //assert that: - in_ is in n
@@ -87,6 +117,7 @@ pub enum LibType {
     rfSecondStrand,
     rFirstStrand,
     rSecondStrand,
+    Invalid,
 }
 
     
