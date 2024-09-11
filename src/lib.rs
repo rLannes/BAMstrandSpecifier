@@ -89,6 +89,28 @@ pub enum LibType {
     rSecondStrand,
 }
 
+    
+impl From<&str> for LibType {
+    fn from(item: &str) -> Self {
+        match item {
+            "frFirstStrand" => LibType::frFirstStrand,
+            "frSecondStrand" => LibType::frSecondStrand,
+            "fFirstStrand" => LibType::fFirstStrand,
+            "fSecondStrand" => LibType::fSecondStrand,
+            "ffFirstStrand" => LibType::ffFirstStrand,
+            "ffSecondStrand" => LibType::ffSecondStrand,
+            "rfFirstStrand" => LibType::rfFirstStrand,
+            "rfSecondStrand" => LibType::rfSecondStrand,
+            "rFirstStrand" => LibType::rFirstStrand,
+            "rSecondStrand" => LibType::rSecondStrand,
+            _ => {
+                println!("{}", item);
+                unreachable!();
+            }
+        }
+    }
+}
+
 // with branch prediction this should be fast.
 impl LibType {
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
