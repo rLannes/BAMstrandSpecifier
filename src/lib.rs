@@ -29,6 +29,7 @@ impl SamFlag {
 pub enum Strand {
     Plus,
     Minus,
+    NA,
 }
 
 impl fmt::Display for Strand {
@@ -40,6 +41,10 @@ impl fmt::Display for Strand {
             Strand::Minus => {
                 write!(f, "-")
             }
+            Strand::NA => {
+                write!(f, ".")
+            }
+            
         }
     }
 }
@@ -49,7 +54,7 @@ impl From<&str> for Strand {
         match item {
             "+" => Strand::Plus,
             "-" => Strand::Minus,
-            "." => Strand::Plus, //FIXME
+            "." => Strand::NA, 
             _ => {
                 println!("{}", item);
                 unreachable!();
