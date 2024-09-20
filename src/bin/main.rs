@@ -52,7 +52,7 @@ for r in bam.records() {
         Some(x) => x,
         None => strand_specifier_lib::Strand::NA
     };
-    record.push_aux(b"FS", Aux::String(format!("{}", strand).as_str())).unwrap();
+    record.push_aux(b"SF", Aux::String(format!("{}", strand).as_str())).unwrap();
         out.write(&record).unwrap();
 }
 
