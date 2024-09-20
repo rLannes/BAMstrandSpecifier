@@ -17,11 +17,11 @@ strand_specifier --input <InputBam> --output <OutputBam> --LibType <Optional one
                                                         rFirstStrand, rSecondStrand] >
 ```
 
-The librairy exposes:
+The library exposes:
 
 The SamFlag structure store all the possible Value a Sam flag can take, it allows to make a code more readable when working with falg.
 The Strand Enum represent the different value a strand can take ['+', '-', '.'].
-Finaly LibType and Enum that represent the different librairy type and implement get_strand().
+Finaly LibType and Enum that represent the different library type and implement get_strand().
 
 ```
     let current_lib = "frFirstStrand";
