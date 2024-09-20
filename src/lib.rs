@@ -1,5 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
+
+
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
 /// example: SamFlag::PAIRED

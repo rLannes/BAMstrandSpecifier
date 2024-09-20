@@ -17,5 +17,27 @@ strand_specifier --input <InputBam> --output <OutputBam> --LibType <Optional one
                                                         rFirstStrand, rSecondStrand] >
 ```
 
+The librairy exposes:
+
+The SamFlag structure store all the possible Value a Sam flag can take, it allows to make a code more readable when working with falg.
+The Strand Enum represent the different value a strand can take ['+', '-', '.'].
+Finaly LibType and Enum that represent the different librairy type and implement get_strand().
+
+```
+    let current_lib = "frFirstStrand";
+    let libtype = match LibType::from_str(current_lib){
+        Ok(lib) => lib,
+        Err(_) => panic!("incorrect lib type {}", current_lib)
+    };
+
+    // return a fragment orientation for a flag:
+    let strand = match libtype.get_strand(record.flags()){
+        Some(x) => x,
+        None => strand_specifier_lib::Strand::NA
+    };
+
+
+```
+
 
 Let me know if you have any issues/comments, or ideas!
