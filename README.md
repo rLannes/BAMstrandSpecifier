@@ -21,7 +21,7 @@ The library exposes:
 
 - The "SamFlag" structure store all the possible Value a Sam flag can take, it allows to make a code more readable when working with falg.
 - The "Strand" Enum represent the different value a strand can take ['+', '-', '.'].
- -Finaly "LibType" an Enum that represent the different library type and implement get_strand().
+- Finaly "LibType" an Enum that represent the different library type and implement get_strand().
 
 ```
     let current_lib = "frFirstStrand";
