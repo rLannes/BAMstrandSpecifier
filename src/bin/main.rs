@@ -5,8 +5,7 @@ use strand_specifier_lib::{LibType, Strand};
 use std::str::FromStr;
 use rust_htslib::{
     bam,
-    bam::record::{Aux, AuxArray},
-    errors::Error,
+    bam::record::Aux,
 };
 
 
