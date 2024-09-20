@@ -148,7 +148,11 @@ impl From<&str> for LibType {
 }
 
 // with branch prediction this should be fast.
+
 impl LibType {
+    /// if it can identify the strand using the librairy layout, return an Option<Strand> else return None,
+    ///  user can use the Strand::NA, as a filer.
+    /// This is a design decition to make suer user understand that this function my fail to assign a strand
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
             LibType::frFirstStrand => {
