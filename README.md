@@ -1,5 +1,6 @@
 This is an opinionated library and executable that assigns the strand of the fragment they are from to each read in an SF tag. SF stands for Strand Fragment.
-The SF tag can take the follwing value: ["+", "-", "."]
+The SF tag can take the follwing value: ["+", "-", "."].
+Whenever possible the orientation of the mate is used to determine the strand.
 
 ## Installation
 
