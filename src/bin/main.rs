@@ -1,4 +1,4 @@
-use rust_htslib::bam::{record, Header, HeaderView, IndexedReader, Read, Writer};
+use rust_htslib::bam::{record, Header, HeaderView, IndexedReader, Read, Writer, Reader};
 use rust_htslib::bam::record::Record;
 use clap::Parser;
 use strand_specifier_lib::{LibType, Strand};
@@ -39,7 +39,7 @@ fn main(){
 
 
 
-let mut bam = bam::IndexedReader::from_path(cli.input.as_str()).unwrap();
+let mut bam = bam::Reader::from_path(cli.input.as_str()).unwrap();
 let header = bam::Header::from_template(bam.header());
 let mut out = bam::Writer::from_path(cli.output.as_str(), &header, bam::Format::Bam).unwrap();
 
