@@ -31,8 +31,6 @@ struct Args {
 
 }
 fn main(){
-
-
     let cli = Args::parse();
     let libtype = match LibType::from_str(&cli.LibType){
         Ok(lib) => lib,
