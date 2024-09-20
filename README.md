@@ -16,3 +16,6 @@ strand_specifier --input <InputBam> --output <OutputBam> --LibType <Optional one
                                                         rfFirstStrand, rfSecondStrand,
                                                         rFirstStrand, rSecondStrand] >
 ```
+
+
+Let me know if you have any issues/comments, or ideas!
