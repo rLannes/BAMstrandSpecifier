@@ -24,6 +24,8 @@ The library exposes:
 - Finaly "LibType" an Enum that represent the different library type and implement get_strand().
 
 ```
+    use strand_specifier_lib::{LibType, Strand};
+
     let current_lib = "frFirstStrand";
     let libtype = match LibType::from_str(current_lib){
         Ok(lib) => lib,
@@ -33,7 +35,7 @@ The library exposes:
     // return a fragment orientation for a flag:
     let strand = match libtype.get_strand(record.flags()){
         Some(x) => x,
-        None => strand_specifier_lib::Strand::NA
+        None => Strand::NA
     };
 
 
