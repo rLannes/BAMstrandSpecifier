@@ -61,4 +61,6 @@ The library exposes the following:
 
 Let me know if you have any issues/comments, or ideas!
 
+I did tested it for frFisrtStrand, but I don't have any data from other library.
+
 
