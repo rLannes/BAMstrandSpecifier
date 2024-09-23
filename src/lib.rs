@@ -24,7 +24,7 @@ impl SamFlag {
     pub const NOT_PRIMARY_ALN: u16 = 256;
     pub const FAIL_QC: u16 = 512;
     pub const DUPLICATE: u16 = 1024;
-    pub const SUPPLEMRNTARY: u16 = 2048;
+    pub const SUPPLEMENTARY: u16 = 2048;
 }
 
 #[derive(Clone, Debug, Copy, Eq, Hash, PartialEq)]
