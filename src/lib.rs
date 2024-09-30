@@ -161,8 +161,17 @@ impl LibType {
     /// This is a design decition to make suer user understand that this function my fail to assign a strand
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
-            LibType::Unstranded => {},
-            LibType::PairedUnstranded => {}
+            LibType::Unstranded => {Some(Strand::NA)},
+            LibType::PairedUnstranded => {if check_flag(
+                flag,
+                SamFlag::PAIRED,
+                SamFlag::READ_UNMAPPED+ SamFlag::MATE_UNMAPPED){
+                    Some(Strand::NA)
+                }
+                else{
+                    None
+                }
+            },
             LibType::frFirstStrand => {
                 if check_flag(
                     flag,
