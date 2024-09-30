@@ -124,6 +124,8 @@ pub enum LibType {
     rfSecondStrand,
     rFirstStrand,
     rSecondStrand,
+    Unstranded,
+    PairedUnstranded,
     Invalid,
 }
 
@@ -131,6 +133,8 @@ pub enum LibType {
 impl From<&str> for LibType {
     fn from(item: &str) -> Self {
         match item {
+            "Unstranded" => LibType::Unstranded,
+            "PairedUnstranded"  => LibType::PairedUnstranded,
             "frFirstStrand" => LibType::frFirstStrand,
             "frSecondStrand" => LibType::frSecondStrand,
             "fFirstStrand" => LibType::fFirstStrand,
@@ -157,6 +161,8 @@ impl LibType {
     /// This is a design decition to make suer user understand that this function my fail to assign a strand
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
+            LibType::Unstranded => {},
+            LibType::PairedUnstranded => {}
             LibType::frFirstStrand => {
                 if check_flag(
                     flag,
