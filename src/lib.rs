@@ -1,6 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 
+use clap::builder::Str;
+
 
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
@@ -27,11 +29,25 @@ impl SamFlag {
     pub const SUPPLEMENTARY: u16 = 2048;
 }
 
-#[derive(Clone, Debug, Copy, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Copy, Eq, Hash)]
 pub enum Strand {
     Plus,
     Minus,
     NA,
+}
+
+impl PartialEq for Strand {
+    fn eq(&self, other: &Self) -> bool {
+
+        match (self, other) {
+            (Strand::NA, _) => true,
+            (_, Strand::NA) => true,
+            (Strand::Plus, Strand::Plus) => true,
+            (Strand::Minus, Strand::Minus) => true,
+            (_,_) => false
+        }
+
+    }
 }
 
 impl fmt::Display for Strand {
