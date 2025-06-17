@@ -29,14 +29,23 @@ impl SamFlag {
     pub const SUPPLEMENTARY: u16 = 2048;
 }
 
-#[derive(Clone, Debug, Copy, Eq, Hash)]
+#[derive(Clone, Debug, Copy, Hash)]
 pub enum Strand {
     Plus,
     Minus,
     NA,
 }
 
-impl PartialEq for Strand {
+impl Strand{
+    pub fn is_na(&self) -> bool{
+        match self{
+            Strand::NA => true,
+            _ => false
+        }
+    }
+}
+
+/*impl PartialEq for Strand {
     fn eq(&self, other: &Self) -> bool {
 
         match (self, other) {
@@ -48,7 +57,7 @@ impl PartialEq for Strand {
         }
 
     }
-}
+} */
 
 impl fmt::Display for Strand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
