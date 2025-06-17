@@ -29,7 +29,7 @@ impl SamFlag {
     pub const SUPPLEMENTARY: u16 = 2048;
 }
 
-#[derive(Clone, Debug, Copy, Hash)]
+#[derive(Clone, Debug, Copy, Eq, Hash)]
 pub enum Strand {
     Plus,
     Minus,
