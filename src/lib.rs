@@ -45,19 +45,18 @@ impl Strand{
     }
 }
 
-/*impl PartialEq for Strand {
+impl PartialEq for Strand {
     fn eq(&self, other: &Self) -> bool {
 
         match (self, other) {
-            (Strand::NA, _) => true,
-            (_, Strand::NA) => true,
+            (Strand::NA, Strand::NA) => true,
             (Strand::Plus, Strand::Plus) => true,
             (Strand::Minus, Strand::Minus) => true,
             (_,_) => false
         }
 
     }
-} */
+} 
 
 impl fmt::Display for Strand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
