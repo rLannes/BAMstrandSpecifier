@@ -82,7 +82,7 @@ impl From<&str> for Strand {
             "-" => Strand::Minus,
             "." => Strand::NA, 
             _ => {
-                println!("{}", item);
+                println!("a strand must be - + or . NOT => {}", item);
                 unreachable!();
             }
         }
