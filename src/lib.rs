@@ -108,7 +108,7 @@ impl FromStr for LibType {
         if libtype == LibType::Invalid {
             return Err(ParseLibType);
         }
-        Ok(libtype)Ò
+        Ok(libtype)
     }
 }
 
