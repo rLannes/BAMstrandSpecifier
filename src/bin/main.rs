@@ -1,13 +1,9 @@
-use rust_htslib::bam::{record, Header, HeaderView, IndexedReader, Read, Writer, Reader};
-use rust_htslib::bam::record::Record;
 use clap::Parser;
-use strand_specifier_lib::{LibType, Strand};
+use rust_htslib::bam::record::Record;
+use rust_htslib::bam::{record, Header, HeaderView, IndexedReader, Read, Reader, Writer};
+use rust_htslib::{bam, bam::record::Aux};
 use std::str::FromStr;
-use rust_htslib::{
-    bam,
-    bam::record::Aux,
-};
-
+use strand_specifier_lib::{LibType, Strand};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -26,36 +22,30 @@ struct Args {
     /// rFirstStrand, rSecondStrand]
     #[arg(short, default_value_t = format!("{}", "frFirstStrand"), long)]
     LibType: String,
-
-
-
 }
-fn main(){
+fn main() {
     let cli = Args::parse();
-    let libtype = match LibType::from_str(&cli.LibType){
+    let libtype = match LibType::from_str(&cli.LibType) {
         Ok(lib) => lib,
-        Err(_) => panic!("incorrect lib type {}", cli.LibType)
+        Err(_) => panic!("incorrect lib type {}", cli.LibType),
     };
 
+    let mut bam = bam::Reader::from_path(cli.input.as_str()).unwrap();
+    let header = bam::Header::from_template(bam.header());
+    let mut out = bam::Writer::from_path(cli.output.as_str(), &header, bam::Format::Bam).unwrap();
 
-
-let mut bam = bam::Reader::from_path(cli.input.as_str()).unwrap();
-let header = bam::Header::from_template(bam.header());
-let mut out = bam::Writer::from_path(cli.output.as_str(), &header, bam::Format::Bam).unwrap();
-
-let mut strand: Strand;
-let mut record: Record;
-// copy reverse reads to new BAM file
-for r in bam.records() {
-    record = r.unwrap();
-    strand = match libtype.get_strand(record.flags()){
-        Some(x) => x,
-        None => strand_specifier_lib::Strand::NA
-    };
-    record.push_aux(b"SF", Aux::String(format!("{}", strand).as_str())).unwrap();
+    let mut strand: Strand;
+    let mut record: Record;
+    // copy reverse reads to new BAM file
+    for r in bam.records() {
+        record = r.unwrap();
+        strand = match libtype.get_strand(record.flags()) {
+            Some(x) => x,
+            None => strand_specifier_lib::Strand::NA,
+        };
+        record
+            .push_aux(b"SF", Aux::String(format!("{}", strand).as_str()))
+            .unwrap();
         out.write(&record).unwrap();
+    }
 }
-
-}
-
-

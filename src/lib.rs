@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 use clap::builder::Str;
 
-
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
 /// example: SamFlag::PAIRED
@@ -36,27 +35,25 @@ pub enum Strand {
     NA,
 }
 
-impl Strand{
-    pub fn is_na(&self) -> bool{
-        match self{
+impl Strand {
+    pub fn is_na(&self) -> bool {
+        match self {
             Strand::NA => true,
-            _ => false
+            _ => false,
         }
     }
 }
 
 impl PartialEq for Strand {
     fn eq(&self, other: &Self) -> bool {
-
         match (self, other) {
             (Strand::NA, Strand::NA) => true,
             (Strand::Plus, Strand::Plus) => true,
             (Strand::Minus, Strand::Minus) => true,
-            (_,_) => false
+            (_, _) => false,
         }
-
     }
-} 
+}
 
 impl fmt::Display for Strand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -70,7 +67,6 @@ impl fmt::Display for Strand {
             Strand::NA => {
                 write!(f, ".")
             }
-            
         }
     }
 }
@@ -80,7 +76,7 @@ impl From<&str> for Strand {
         match item {
             "+" => Strand::Plus,
             "-" => Strand::Minus,
-            "." => Strand::NA, 
+            "." => Strand::NA,
             _ => {
                 println!("a strand must be - + or . NOT => {}", item);
                 unreachable!();
@@ -93,32 +89,29 @@ impl From<&str> for Strand {
 pub struct ParseLibType;
 /// Create a new LibType variant from a &str.
 impl FromStr for LibType {
-
     type Err = ParseLibType;
     fn from_str(str: &str) -> Result<Self, ParseLibType> {
         let libtype = match str {
-                "Unstranded" => LibType::Unstranded,
-                "PairedUnstranded"  => LibType::PairedUnstranded,
-                "frFirstStrand" => LibType::frFirstStrand,
-                "frSecondStrand" => LibType::frSecondStrand,
-                "fFirstStrand" => LibType::fFirstStrand,
-                "fSecondStrand" => LibType::fSecondStrand,
-                "ffFirstStrand" => LibType::ffFirstStrand,
-                "ffSecondStrand" => LibType::ffSecondStrand,
-                "rfFirstStrand" => LibType::rfFirstStrand,
-                "rfSecondStrand" => LibType::rfSecondStrand,
-                "rFirstStrand" => LibType::rFirstStrand,
-                "rSecondStrand" => LibType::rSecondStrand,
-                _ => LibType::Invalid
-            };
-        if libtype == LibType::Invalid{
+            "Unstranded" => LibType::Unstranded,
+            "PairedUnstranded" => LibType::PairedUnstranded,
+            "frFirstStrand" => LibType::frFirstStrand,
+            "frSecondStrand" => LibType::frSecondStrand,
+            "fFirstStrand" => LibType::fFirstStrand,
+            "fSecondStrand" => LibType::fSecondStrand,
+            "ffFirstStrand" => LibType::ffFirstStrand,
+            "ffSecondStrand" => LibType::ffSecondStrand,
+            "rfFirstStrand" => LibType::rfFirstStrand,
+            "rfSecondStrand" => LibType::rfSecondStrand,
+            "rFirstStrand" => LibType::rFirstStrand,
+            "rSecondStrand" => LibType::rSecondStrand,
+            _ => LibType::Invalid,
+        };
+        if libtype == LibType::Invalid {
             return Err(ParseLibType);
         }
-        return Ok(libtype)
+        return Ok(libtype);
     }
-        
 }
-    
 
 pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     //binary flag check
@@ -155,12 +148,11 @@ pub enum LibType {
     Invalid,
 }
 
-    
 impl From<&str> for LibType {
     fn from(item: &str) -> Self {
         match item {
             "Unstranded" => LibType::Unstranded,
-            "PairedUnstranded"  => LibType::PairedUnstranded,
+            "PairedUnstranded" => LibType::PairedUnstranded,
             "frFirstStrand" => LibType::frFirstStrand,
             "frSecondStrand" => LibType::frSecondStrand,
             "fFirstStrand" => LibType::fFirstStrand,
@@ -188,21 +180,23 @@ impl LibType {
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
             LibType::Unstranded => {
-                if check_flag(flag,
-                SamFlag::PAIRED,
-                SamFlag::READ_UNMAPPED){Some(Strand::NA)}
-                else{ None}
-            },
-            LibType::PairedUnstranded => {if check_flag(
-                flag,
-                SamFlag::PAIRED,
-                SamFlag::READ_UNMAPPED + SamFlag::MATE_UNMAPPED){
+                if check_flag(flag, SamFlag::PAIRED, SamFlag::READ_UNMAPPED) {
                     Some(Strand::NA)
-                }
-                else{
+                } else {
                     None
                 }
-            },
+            }
+            LibType::PairedUnstranded => {
+                if check_flag(
+                    flag,
+                    SamFlag::PAIRED,
+                    SamFlag::READ_UNMAPPED + SamFlag::MATE_UNMAPPED,
+                ) {
+                    Some(Strand::NA)
+                } else {
+                    None
+                }
+            }
             LibType::frFirstStrand => {
                 if check_flag(
                     flag,
@@ -254,7 +248,7 @@ impl LibType {
                 }
             }
             LibType::fFirstStrand => {
-                if check_flag(flag,  SamFlag::READ_REVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
                 } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Minus)
@@ -263,7 +257,7 @@ impl LibType {
                 }
             }
             LibType::fSecondStrand => {
-                if check_flag(flag,  SamFlag::READ_REVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
                 } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Plus)
@@ -506,14 +500,22 @@ mod tests {
     fn check_flag_rejects_when_missing_required_bits() {
         // in_ = PAIRED + FIRST_IN_PAIR, but flag only has PAIRED
         let flag = SamFlag::PAIRED;
-        assert!(!check_flag(flag, SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR, 0));
+        assert!(!check_flag(
+            flag,
+            SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
+            0
+        ));
     }
 
     #[test]
     fn check_flag_accepts_valid_combination() {
         // flag contains both required bits and none of the forbidden bits
         let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE;
-        assert!(check_flag(flag, SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR, SamFlag::MATE_REVERSE));
+        assert!(check_flag(
+            flag,
+            SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
+            SamFlag::MATE_REVERSE
+        ));
     }
 
     // -----------------------------------------------------------------
@@ -522,10 +524,7 @@ mod tests {
     #[test]
     fn get_strand_unstranded_always_na_ifmapped() {
         let flag = SamFlag::PAIRED; // flag value does not matter for Unstranded
-        assert_eq!(
-            LibType::Unstranded.get_strand(flag),
-            Some(Strand::NA)
-        );
+        assert_eq!(LibType::Unstranded.get_strand(flag), Some(Strand::NA));
     }
 
     #[test]
@@ -533,10 +532,7 @@ mod tests {
         // PairedUnstranded returns NA only when the read is paired
         // and both reads are unmapped.
         let flag = SamFlag::PAIRED;
-        assert_eq!(
-            LibType::PairedUnstranded.get_strand(flag),
-            Some(Strand::NA)
-        );
+        assert_eq!(LibType::PairedUnstranded.get_strand(flag), Some(Strand::NA));
 
         // Missing one of the required bits → None
         let flag = SamFlag::PAIRED + SamFlag::READ_UNMAPPED;
@@ -546,22 +542,12 @@ mod tests {
     #[test]
     fn get_strand_frfirststrand_plus_and_minus() {
         // Scenario that should yield Strand::Plus
-        let flag = SamFlag::PAIRED
-            + SamFlag::FIRST_IN_PAIR
-            + SamFlag::READ_REVERSE; // mate is forward
-        assert_eq!(
-            LibType::frFirstStrand.get_strand(flag),
-            Some(Strand::Plus)
-        );
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE; // mate is forward
+        assert_eq!(LibType::frFirstStrand.get_strand(flag), Some(Strand::Plus));
 
         // Scenario that should yield Strand::Minus
-        let flag = SamFlag::PAIRED
-            + SamFlag::FIRST_IN_PAIR
-            + SamFlag::MATE_REVERSE; // read is forward, mate reverse
-        assert_eq!(
-            LibType::frFirstStrand.get_strand(flag),
-            Some(Strand::Minus)
-        );
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE; // read is forward, mate reverse
+        assert_eq!(LibType::frFirstStrand.get_strand(flag), Some(Strand::Minus));
     }
 
     #[test]
@@ -571,34 +557,22 @@ mod tests {
             + SamFlag::FIRST_IN_PAIR
             + SamFlag::READ_REVERSE
             + SamFlag::MATE_REVERSE;
-        assert_eq!(
-            LibType::ffFirstStrand.get_strand(flag),
-            Some(Strand::Plus)
-        );
+        assert_eq!(LibType::ffFirstStrand.get_strand(flag), Some(Strand::Plus));
 
         // Only read reversed, mate forward → Minus
         let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR;
-        assert_eq!(
-            LibType::ffFirstStrand.get_strand(flag),
-            Some(Strand::Minus)
-        );
+        assert_eq!(LibType::ffFirstStrand.get_strand(flag), Some(Strand::Minus));
     }
 
     #[test]
     fn get_strand_ffirststrand_simple() {
         // Read reversed → Plus
         let flag = SamFlag::READ_REVERSE;
-        assert_eq!(
-            LibType::fFirstStrand.get_strand(flag),
-            Some(Strand::Plus)
-        );
+        assert_eq!(LibType::fFirstStrand.get_strand(flag), Some(Strand::Plus));
 
         // Read not reversed → Minus
         let flag = 0;
-        assert_eq!(
-            LibType::fFirstStrand.get_strand(flag),
-            Some(Strand::Minus)
-        );
+        assert_eq!(LibType::fFirstStrand.get_strand(flag), Some(Strand::Minus));
     }
 
     // You can continue adding tests for the remaining LibType variants
