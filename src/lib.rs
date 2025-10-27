@@ -1,7 +1,6 @@
 use std::fmt;
 use std::str::FromStr;
 
-use clap::builder::Str;
 
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
@@ -109,7 +108,7 @@ impl FromStr for LibType {
         if libtype == LibType::Invalid {
             return Err(ParseLibType);
         }
-        return Ok(libtype);
+        Ok(libtype);
     }
 }
 
@@ -124,7 +123,7 @@ pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     if (in_ & flag) != in_ {
         return false;
     }
-    return true;
+    true;
 }
 
 //
