@@ -108,7 +108,7 @@ impl FromStr for LibType {
         if libtype == LibType::Invalid {
             return Err(ParseLibType);
         }
-        Ok(libtype);
+        Ok(libtype)Ò
     }
 }
 
@@ -123,7 +123,7 @@ pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     if (in_ & flag) != in_ {
         return false;
     }
-    true;
+    true
 }
 
 //
