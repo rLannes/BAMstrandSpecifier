@@ -54,7 +54,7 @@ The library exposes the following:
     assert_eq!(true, check_flag(84, 2, 256));
 
     // you can Also you the SamFlag structure for better lisibility.
-    assert_eq!(true, check_flag(18, SamFlag::Paired +  SamFlag::READ_RERVERSE, SamFlag::NOT_PRIMARY_ALN));
+    assert_eq!(true, check_flag(18, SamFlag::Paired +  SamFlag::READ_REVERSE, SamFlag::NOT_PRIMARY_ALN));
 
 ```
 

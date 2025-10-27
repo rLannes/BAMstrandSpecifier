@@ -19,7 +19,7 @@ impl SamFlag {
     pub const PROPERLY_PAIRED: u16 = 2;
     pub const READ_UNMAPPED: u16 = 4;
     pub const MATE_UNMAPPED: u16 = 8;
-    pub const READ_RERVERSE: u16 = 16;
+    pub const READ_REVERSE: u16 = 16;
     pub const MATE_REVERSE: u16 = 32;
     pub const FIRST_IN_PAIR: u16 = 64;
     pub const SECOND_IN_PAIR: u16 = 128;
@@ -206,21 +206,21 @@ impl LibType {
             LibType::frFirstStrand => {
                 if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
@@ -231,21 +231,21 @@ impl LibType {
             LibType::frSecondStrand => {
                 if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
@@ -254,18 +254,18 @@ impl LibType {
                 }
             }
             LibType::fFirstStrand => {
-                if check_flag(flag,  SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag,  SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
+                } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Minus)
                 } else {
                     None
                 }
             }
             LibType::fSecondStrand => {
-                if check_flag(flag,  SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag,  SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
-                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
+                } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Plus)
                 } else {
                     None
@@ -276,14 +276,14 @@ impl LibType {
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::FIRST_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::SECOND_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) {
@@ -291,11 +291,11 @@ impl LibType {
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else {
@@ -307,14 +307,14 @@ impl LibType {
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::FIRST_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::SECOND_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) {
@@ -322,11 +322,11 @@ impl LibType {
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else {
@@ -337,21 +337,21 @@ impl LibType {
                 if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else {
@@ -362,21 +362,21 @@ impl LibType {
                 if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else {
@@ -384,18 +384,18 @@ impl LibType {
                 }
             }
             LibType::rFirstStrand => {
-                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
                 } else {
                     None
                 }
             }
             LibType::rSecondStrand => {
-                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
-                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
                 } else {
                     None
@@ -427,7 +427,7 @@ mod tests {
         assert_eq!(SamFlag::PROPERLY_PAIRED, 2);
         assert_eq!(SamFlag::READ_UNMAPPED, 4);
         assert_eq!(SamFlag::MATE_UNMAPPED, 8);
-        assert_eq!(SamFlag::READ_RERVERSE, 16);
+        assert_eq!(SamFlag::READ_REVERSE, 16);
         assert_eq!(SamFlag::MATE_REVERSE, 32);
         assert_eq!(SamFlag::FIRST_IN_PAIR, 64);
         assert_eq!(SamFlag::SECOND_IN_PAIR, 128);
@@ -512,7 +512,7 @@ mod tests {
     #[test]
     fn check_flag_accepts_valid_combination() {
         // flag contains both required bits and none of the forbidden bits
-        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE;
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE;
         assert!(check_flag(flag, SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR, SamFlag::MATE_REVERSE));
     }
 
@@ -548,7 +548,7 @@ mod tests {
         // Scenario that should yield Strand::Plus
         let flag = SamFlag::PAIRED
             + SamFlag::FIRST_IN_PAIR
-            + SamFlag::READ_RERVERSE; // mate is forward
+            + SamFlag::READ_REVERSE; // mate is forward
         assert_eq!(
             LibType::frFirstStrand.get_strand(flag),
             Some(Strand::Plus)
@@ -569,7 +569,7 @@ mod tests {
         // Both reads paired, both strands reversed → Plus
         let flag = SamFlag::PAIRED
             + SamFlag::FIRST_IN_PAIR
-            + SamFlag::READ_RERVERSE
+            + SamFlag::READ_REVERSE
             + SamFlag::MATE_REVERSE;
         assert_eq!(
             LibType::ffFirstStrand.get_strand(flag),
@@ -587,7 +587,7 @@ mod tests {
     #[test]
     fn get_strand_ffirststrand_simple() {
         // Read reversed → Plus
-        let flag = SamFlag::READ_RERVERSE;
+        let flag = SamFlag::READ_REVERSE;
         assert_eq!(
             LibType::fFirstStrand.get_strand(flag),
             Some(Strand::Plus)
