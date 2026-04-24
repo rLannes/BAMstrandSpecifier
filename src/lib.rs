@@ -377,9 +377,9 @@ impl LibType {
                 }
             }
             LibType::rFirstStrand => {
-                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_RERVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
                     Some(Strand::Minus)
                 } else {
                     None
