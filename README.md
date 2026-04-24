@@ -90,7 +90,8 @@ assert_eq!(
 
 - **`check_flag(flag, must_be_set, must_not_be_set) -> bool`** — A low-level helper that tests whether all bits in `must_be_set` are present in `flag` and all bits in `must_not_be_set` are absent.
 
-### Command-line tool
+    // you can Also you the SamFlag structure for better lisibility.
+    assert_eq!(true, check_flag(18, SamFlag::Paired +  SamFlag::READ_REVERSE, SamFlag::NOT_PRIMARY_ALN));
 
 A CLI wrapper is provided for convenience. It reads a BAM, assigns an SF tag to every read, and writes a new BAM:
 

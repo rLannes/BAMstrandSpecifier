@@ -1,8 +1,6 @@
 use std::fmt;
 use std::str::FromStr;
 
-use clap::builder::Str;
-
 
 /// This stucture store as constant all possible value that a SAM read flag can take
 /// to access SamFlag::<value>
@@ -19,7 +17,7 @@ impl SamFlag {
     pub const PROPERLY_PAIRED: u16 = 2;
     pub const READ_UNMAPPED: u16 = 4;
     pub const MATE_UNMAPPED: u16 = 8;
-    pub const READ_RERVERSE: u16 = 16;
+    pub const READ_REVERSE: u16 = 16;
     pub const MATE_REVERSE: u16 = 32;
     pub const FIRST_IN_PAIR: u16 = 64;
     pub const SECOND_IN_PAIR: u16 = 128;
@@ -36,27 +34,25 @@ pub enum Strand {
     NA,
 }
 
-impl Strand{
-    pub fn is_na(&self) -> bool{
-        match self{
+impl Strand {
+    pub fn is_na(&self) -> bool {
+        match self {
             Strand::NA => true,
-            _ => false
+            _ => false,
         }
     }
 }
 
 impl PartialEq for Strand {
     fn eq(&self, other: &Self) -> bool {
-
         match (self, other) {
             (Strand::NA, Strand::NA) => true,
             (Strand::Plus, Strand::Plus) => true,
             (Strand::Minus, Strand::Minus) => true,
-            (_,_) => false
+            (_, _) => false,
         }
-
     }
-} 
+}
 
 impl fmt::Display for Strand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -70,7 +66,6 @@ impl fmt::Display for Strand {
             Strand::NA => {
                 write!(f, ".")
             }
-            
         }
     }
 }
@@ -80,7 +75,7 @@ impl From<&str> for Strand {
         match item {
             "+" => Strand::Plus,
             "-" => Strand::Minus,
-            "." => Strand::NA, 
+            "." => Strand::NA,
             _ => {
                 println!("a strand must be - + or . NOT => {}", item);
                 unreachable!();
@@ -93,30 +88,29 @@ impl From<&str> for Strand {
 pub struct ParseLibType;
 /// Create a new LibType variant from a &str.
 impl FromStr for LibType {
-
     type Err = ParseLibType;
     fn from_str(str: &str) -> Result<Self, ParseLibType> {
         let libtype = match str {
-                "frFirstStrand" => LibType::frFirstStrand,
-                "frSecondStrand" => LibType::frSecondStrand,
-                "fFirstStrand" => LibType::fFirstStrand,
-                "fSecondStrand" => LibType::fSecondStrand,
-                "ffFirstStrand" => LibType::ffFirstStrand,
-                "ffSecondStrand" => LibType::ffSecondStrand,
-                "rfFirstStrand" => LibType::rfFirstStrand,
-                "rfSecondStrand" => LibType::rfSecondStrand,
-                "rFirstStrand" => LibType::rFirstStrand,
-                "rSecondStrand" => LibType::rSecondStrand,
-                _ => LibType::Invalid
-            };
-        if libtype == LibType::Invalid{
+            "Unstranded" => LibType::Unstranded,
+            "PairedUnstranded" => LibType::PairedUnstranded,
+            "frFirstStrand" => LibType::frFirstStrand,
+            "frSecondStrand" => LibType::frSecondStrand,
+            "fFirstStrand" => LibType::fFirstStrand,
+            "fSecondStrand" => LibType::fSecondStrand,
+            "ffFirstStrand" => LibType::ffFirstStrand,
+            "ffSecondStrand" => LibType::ffSecondStrand,
+            "rfFirstStrand" => LibType::rfFirstStrand,
+            "rfSecondStrand" => LibType::rfSecondStrand,
+            "rFirstStrand" => LibType::rFirstStrand,
+            "rSecondStrand" => LibType::rSecondStrand,
+            _ => LibType::Invalid,
+        };
+        if libtype == LibType::Invalid {
             return Err(ParseLibType);
         }
-        return Ok(libtype)
+        Ok(libtype)
     }
-        
 }
-    
 
 pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     //binary flag check
@@ -129,7 +123,7 @@ pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     if (in_ & flag) != in_ {
         return false;
     }
-    return true;
+    true
 }
 
 //
@@ -153,12 +147,11 @@ pub enum LibType {
     Invalid,
 }
 
-    
 impl From<&str> for LibType {
     fn from(item: &str) -> Self {
         match item {
             "Unstranded" => LibType::Unstranded,
-            "PairedUnstranded"  => LibType::PairedUnstranded,
+            "PairedUnstranded" => LibType::PairedUnstranded,
             "frFirstStrand" => LibType::frFirstStrand,
             "frSecondStrand" => LibType::frSecondStrand,
             "fFirstStrand" => LibType::fFirstStrand,
@@ -185,35 +178,42 @@ impl LibType {
     /// This is a design decition to make suer user understand that this function my fail to assign a strand
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
-            LibType::Unstranded => {Some(Strand::NA)},
-            LibType::PairedUnstranded => {if check_flag(
-                flag,
-                SamFlag::PAIRED,
-                SamFlag::READ_UNMAPPED+ SamFlag::MATE_UNMAPPED){
+            LibType::Unstranded => {
+                if check_flag(flag, SamFlag::PAIRED, SamFlag::READ_UNMAPPED) {
                     Some(Strand::NA)
-                }
-                else{
+                } else {
                     None
                 }
-            },
+            }
+            LibType::PairedUnstranded => {
+                if check_flag(
+                    flag,
+                    SamFlag::PAIRED,
+                    SamFlag::READ_UNMAPPED + SamFlag::MATE_UNMAPPED,
+                ) {
+                    Some(Strand::NA)
+                } else {
+                    None
+                }
+            }
             LibType::frFirstStrand => {
                 if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
@@ -224,21 +224,21 @@ impl LibType {
             LibType::frSecondStrand => {
                 if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
@@ -247,18 +247,18 @@ impl LibType {
                 }
             }
             LibType::fFirstStrand => {
-                if check_flag(flag,  SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
+                } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Minus)
                 } else {
                     None
                 }
             }
             LibType::fSecondStrand => {
-                if check_flag(flag,  SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
-                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
+                } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Plus)
                 } else {
                     None
@@ -269,14 +269,14 @@ impl LibType {
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::FIRST_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::SECOND_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) {
@@ -284,11 +284,11 @@ impl LibType {
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else {
@@ -300,14 +300,14 @@ impl LibType {
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::FIRST_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED
                         + SamFlag::SECOND_IN_PAIR
-                        + SamFlag::READ_RERVERSE
+                        + SamFlag::READ_REVERSE
                         + SamFlag::MATE_REVERSE,
                     0,
                 ) {
@@ -315,11 +315,11 @@ impl LibType {
                 } else if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR,
-                    SamFlag::READ_RERVERSE + SamFlag::MATE_REVERSE,
+                    SamFlag::READ_REVERSE + SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else {
@@ -330,21 +330,21 @@ impl LibType {
                 if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else {
@@ -355,21 +355,21 @@ impl LibType {
                 if check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) || check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) {
                     Some(Strand::Minus)
                 } else if check_flag(
                     flag,
-                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE,
+                    SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE,
                     SamFlag::MATE_REVERSE,
                 ) || check_flag(
                     flag,
                     SamFlag::PAIRED + SamFlag::SECOND_IN_PAIR + SamFlag::MATE_REVERSE,
-                    SamFlag::READ_RERVERSE,
+                    SamFlag::READ_REVERSE,
                 ) {
                     Some(Strand::Plus)
                 } else {
@@ -377,18 +377,18 @@ impl LibType {
                 }
             }
             LibType::rFirstStrand => {
-                if check_flag(flag, SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, 0, SamFlag::READ_RERVERSE) {
+                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
                 } else {
                     None
                 }
             }
             LibType::rSecondStrand => {
-                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Minus)
-                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_RERVERSE, 0) {
+                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
                 } else {
                     None
@@ -399,19 +399,181 @@ impl LibType {
     }
 }
 
+// ──────────────────────────────────────────────────────────────
+//  Unit tests for the SAM‑flag / strand / library‑type helpers
+// ──────────────────────────────────────────────────────────────
+
+// ──────────────────────────────────────────────────────────────
+//  Unit tests for the SAM‑flag / strand / library‑type helpers
+// ──────────────────────────────────────────────────────────────
+
 #[cfg(test)]
 mod tests {
-    use super::*;
-    // TODO
+    use super::*; // pulls in everything from the parent module
+
+    // -----------------------------------------------------------------
+    //  SamFlag constants
+    // -----------------------------------------------------------------
     #[test]
-    fn it_works() {
-        let flag = 147;
-        assert_eq!(Some(Strand::Minus), LibType::frFirstStrand.get_strand(flag))
+    fn samflag_values_are_correct() {
+        assert_eq!(SamFlag::PAIRED, 1);
+        assert_eq!(SamFlag::PROPERLY_PAIRED, 2);
+        assert_eq!(SamFlag::READ_UNMAPPED, 4);
+        assert_eq!(SamFlag::MATE_UNMAPPED, 8);
+        assert_eq!(SamFlag::READ_REVERSE, 16);
+        assert_eq!(SamFlag::MATE_REVERSE, 32);
+        assert_eq!(SamFlag::FIRST_IN_PAIR, 64);
+        assert_eq!(SamFlag::SECOND_IN_PAIR, 128);
+        assert_eq!(SamFlag::NOT_PRIMARY_ALN, 256);
+        assert_eq!(SamFlag::FAIL_QC, 512);
+        assert_eq!(SamFlag::DUPLICATE, 1024);
+        assert_eq!(SamFlag::SUPPLEMENTARY, 2048);
+    }
+
+    // -----------------------------------------------------------------
+    //  Strand – basic behaviour
+    // -----------------------------------------------------------------
+    #[test]
+    fn strand_is_na_works() {
+        assert!(Strand::NA.is_na());
+        assert!(!Strand::Plus.is_na());
+        assert!(!Strand::Minus.is_na());
     }
 
     #[test]
-    fn it_works2() {
-        let flag = 99;
-        assert_eq!(Some(Strand::Minus), LibType::frFirstStrand.get_strand(flag))
+    fn strand_partial_eq() {
+        assert_eq!(Strand::Plus, Strand::Plus);
+        assert_eq!(Strand::Minus, Strand::Minus);
+        assert_eq!(Strand::NA, Strand::NA);
+        assert_ne!(Strand::Plus, Strand::Minus);
+        assert_ne!(Strand::Plus, Strand::NA);
     }
+
+    #[test]
+    fn strand_display() {
+        assert_eq!(format!("{}", Strand::Plus), "+");
+        assert_eq!(format!("{}", Strand::Minus), "-");
+        assert_eq!(format!("{}", Strand::NA), ".");
+    }
+
+    #[test]
+    fn strand_from_str() {
+        assert_eq!(Strand::from("+"), Strand::Plus);
+        assert_eq!(Strand::from("-"), Strand::Minus);
+        assert_eq!(Strand::from("."), Strand::NA);
+    }
+
+    // -----------------------------------------------------------------
+    //  ParseLibType – FromStr implementation
+    // -----------------------------------------------------------------
+    #[test]
+    fn parse_libtype_successful() {
+        use std::str::FromStr;
+
+        let ok = LibType::from_str("frFirstStrand").unwrap();
+        assert_eq!(ok, LibType::frFirstStrand);
+
+        let ok = LibType::from_str("Unstranded").unwrap();
+        assert_eq!(ok, LibType::Unstranded);
+    }
+
+    #[test]
+    fn parse_libtype_invalid_returns_err() {
+        use std::str::FromStr;
+
+        let err = LibType::from_str("does_not_exist");
+        assert!(err.is_err());
+    }
+
+    // -----------------------------------------------------------------
+    //  check_flag – core bit‑mask logic
+    // -----------------------------------------------------------------
+    #[test]
+    fn check_flag_rejects_when_not_in_present() {
+        // not_in = READ_UNMAPPED (bit 4)
+        let flag = SamFlag::READ_UNMAPPED | SamFlag::PAIRED;
+        assert!(!check_flag(flag, SamFlag::PAIRED, SamFlag::READ_UNMAPPED));
+    }
+
+    #[test]
+    fn check_flag_rejects_when_missing_required_bits() {
+        // in_ = PAIRED + FIRST_IN_PAIR, but flag only has PAIRED
+        let flag = SamFlag::PAIRED;
+        assert!(!check_flag(
+            flag,
+            SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
+            0
+        ));
+    }
+
+    #[test]
+    fn check_flag_accepts_valid_combination() {
+        // flag contains both required bits and none of the forbidden bits
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE;
+        assert!(check_flag(
+            flag,
+            SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR,
+            SamFlag::MATE_REVERSE
+        ));
+    }
+
+    // -----------------------------------------------------------------
+    //  LibType::get_strand – representative cases
+    // -----------------------------------------------------------------
+    #[test]
+    fn get_strand_unstranded_always_na_ifmapped() {
+        let flag = SamFlag::PAIRED; // flag value does not matter for Unstranded
+        assert_eq!(LibType::Unstranded.get_strand(flag), Some(Strand::NA));
+    }
+
+    #[test]
+    fn get_strand_paired_unstranded_conditions() {
+        // PairedUnstranded returns NA only when the read is paired
+        // and both reads are unmapped.
+        let flag = SamFlag::PAIRED;
+        assert_eq!(LibType::PairedUnstranded.get_strand(flag), Some(Strand::NA));
+
+        // Missing one of the required bits → None
+        let flag = SamFlag::PAIRED + SamFlag::READ_UNMAPPED;
+        assert_eq!(LibType::PairedUnstranded.get_strand(flag), None);
+    }
+
+    #[test]
+    fn get_strand_frfirststrand_plus_and_minus() {
+        // Scenario that should yield Strand::Plus
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE; // mate is forward
+        assert_eq!(LibType::frFirstStrand.get_strand(flag), Some(Strand::Plus));
+
+        // Scenario that should yield Strand::Minus
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR + SamFlag::MATE_REVERSE; // read is forward, mate reverse
+        assert_eq!(LibType::frFirstStrand.get_strand(flag), Some(Strand::Minus));
+    }
+
+    #[test]
+    fn get_strand_ffirststrand_plus_and_minus() {
+        // Both reads paired, both strands reversed → Plus
+        let flag = SamFlag::PAIRED
+            + SamFlag::FIRST_IN_PAIR
+            + SamFlag::READ_REVERSE
+            + SamFlag::MATE_REVERSE;
+        assert_eq!(LibType::ffFirstStrand.get_strand(flag), Some(Strand::Plus));
+
+        // Only read reversed, mate forward → Minus
+        let flag = SamFlag::PAIRED + SamFlag::FIRST_IN_PAIR;
+        assert_eq!(LibType::ffFirstStrand.get_strand(flag), Some(Strand::Minus));
+    }
+
+    #[test]
+    fn get_strand_ffirststrand_simple() {
+        // Read reversed → Plus
+        let flag = SamFlag::READ_REVERSE;
+        assert_eq!(LibType::fFirstStrand.get_strand(flag), Some(Strand::Plus));
+
+        // Read not reversed → Minus
+        let flag = 0;
+        assert_eq!(LibType::fFirstStrand.get_strand(flag), Some(Strand::Minus));
+    }
+
+    // You can continue adding tests for the remaining LibType variants
+    // (rf*, r*, etc.) following the same pattern.
 }
