@@ -1,4 +1,4 @@
-# BamStrandSpecifier
+# BAMstrandSpecifier
 
 A Rust library for resolving the strand of origin of RNA-seq reads from their SAM bitwise flags and library preparation protocol. If you write custom BAM-processing code and need to know which strand a fragment comes from, this crate gives you a single function call — `LibType::get_strand(flag)` — instead of reimplementing the flag logic yourself every time.
 
@@ -31,13 +31,13 @@ If you are unsure which type your data uses, `frFirstStrand` (dUTP / Illumina Tr
 
 1. Install Rust: <https://www.rust-lang.org/tools/install>
 2. Clone this repository.
-3. Inside the `BamStrandSpecifier` folder, run:
+3. Inside the `BAMstrandSpecifier` folder, run:
 
 ```bash
 cargo build --release
 ```
 
-4. The binary will be at `BamStrandSpecifier/target/release/strand_specifier`.
+4. The binary will be at `BAMstrandSpecifier/target/release/strand_specifier`.
 
 ## Usage
 
@@ -90,8 +90,10 @@ assert_eq!(
 
 - **`check_flag(flag, must_be_set, must_not_be_set) -> bool`** — A low-level helper that tests whether all bits in `must_be_set` are present in `flag` and all bits in `must_not_be_set` are absent.
 
-    // you can Also you the SamFlag structure for better lisibility.
-    assert_eq!(true, check_flag(18, SamFlag::Paired +  SamFlag::READ_REVERSE, SamFlag::NOT_PRIMARY_ALN));
+```rust
+// You can also use the SamFlag constants for better legibility.
+assert_eq!(true, check_flag(18, SamFlag::PROPERLY_PAIRED + SamFlag::READ_REVERSE, SamFlag::NOT_PRIMARY_ALN));
+```
 
 A CLI wrapper is provided for convenience. It reads a BAM, assigns an SF tag to every read, and writes a new BAM:
 

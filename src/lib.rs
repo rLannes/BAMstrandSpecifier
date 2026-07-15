@@ -213,7 +213,7 @@ impl LibType {
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
             LibType::Unstranded => {
-                if check_flag(flag, SamFlag::PAIRED, SamFlag::READ_UNMAPPED) {
+                if check_flag(flag, 0, SamFlag::READ_UNMAPPED) {
                     Some(Strand::NA)
                 } else {
                     None
@@ -411,9 +411,9 @@ impl LibType {
                 }
             }
             LibType::rFirstStrand => {
-                if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
+                if check_flag(flag, SamFlag::READ_REVERSE, 0) {
                     Some(Strand::Plus)
-                } else if check_flag(flag, SamFlag::FIRST_IN_PAIR + SamFlag::READ_REVERSE, 0) {
+                } else if check_flag(flag, 0, SamFlag::READ_REVERSE) {
                     Some(Strand::Minus)
                 } else {
                     None
