@@ -1,14 +1,19 @@
+//! Core library for inferring RNA-seq read strand from SAM/BAM flags.
+//!
+//! [`SamFlag`] names the individual SAM flag bits, [`LibType`] represents the
+//! supported stranded/unstranded library layouts (e.g. `frFirstStrand`,
+//! `ffSecondStrand`), and [`LibType::get_strand`] uses a library type's flag
+//! combination to classify a read's [`Strand`] (`Plus`, `Minus`, or `NA`).
+
 use std::fmt;
 use std::str::FromStr;
 
-
-/// This stucture store as constant all possible value that a SAM read flag can take
-/// to access SamFlag::<value>
-/// example: SamFlag::PAIRED
-/// for better readability we use this structure instead of passing value directly,
-/// code will be more verbose but will document itself and logic error will be easier
-/// to avoid/catch.
-/// We don't pay runtime cost as constant expression are computed at compile time.
+/// Stores, as associated constants, every value a SAM read flag bit can take,
+/// accessed as `SamFlag::<value>` (e.g. `SamFlag::PAIRED`).
+///
+/// Using named constants instead of passing raw bit values around makes the
+/// code self-documenting and easier to review for logic errors; since these
+/// are constant expressions, there is no runtime cost.
 #[non_exhaustive]
 pub struct SamFlag;
 
@@ -27,6 +32,8 @@ impl SamFlag {
     pub const SUPPLEMENTARY: u16 = 2048;
 }
 
+/// The strand a read is inferred to originate from: `Plus`, `Minus`, or
+/// `NA` when it cannot be determined from the read's flags.
 #[derive(Clone, Debug, Copy, Eq, Hash)]
 pub enum Strand {
     Plus,
@@ -35,6 +42,7 @@ pub enum Strand {
 }
 
 impl Strand {
+    /// Returns `true` if the strand could not be determined (`Strand::NA`).
     pub fn is_na(&self) -> bool {
         match self {
             Strand::NA => true,
@@ -54,6 +62,8 @@ impl PartialEq for Strand {
     }
 }
 
+/// Formats a strand using the standard BED/GFF single-character convention:
+/// `+` for `Plus`, `-` for `Minus`, and `.` for `NA`.
 impl fmt::Display for Strand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -70,6 +80,10 @@ impl fmt::Display for Strand {
     }
 }
 
+/// Parses `"+"`, `"-"`, or `"."` into a [`Strand`].
+///
+/// # Panics
+/// Panics (via `unreachable!()`) if `item` is any other string.
 impl From<&str> for Strand {
     fn from(item: &str) -> Self {
         match item {
@@ -84,9 +98,14 @@ impl From<&str> for Strand {
     }
 }
 
+/// Error returned when a string does not match any known [`LibType`] name.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParseLibType;
-/// Create a new LibType variant from a &str.
+
+/// Parses a [`LibType`] variant from its name (e.g. `"frFirstStrand"`).
+///
+/// Returns `Err(ParseLibType)` if the string does not match any known
+/// library type name.
 impl FromStr for LibType {
     type Err = ParseLibType;
     fn from_str(str: &str) -> Result<Self, ParseLibType> {
@@ -112,11 +131,11 @@ impl FromStr for LibType {
     }
 }
 
+/// Checks a SAM flag bitmask against required and forbidden bits.
+///
+/// Returns `true` only if every bit set in `in_` is also set in `flag`, and
+/// no bit set in `not_in` is set in `flag`.
 pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
-    //binary flag check
-    //assert that: - in_ is in n
-    //             - not_in is not in n
-    // bitwise operation
     if (not_in & flag) != 0 {
         return false;
     }
@@ -126,9 +145,12 @@ pub fn check_flag(flag: u16, in_: u16, not_in: u16) -> bool {
     true
 }
 
-//
-// Does not match proper Camel case on purpose
-// as to avoid confusion with the first term(f, r, ff, fr)
+/// A sequencing library's strandedness/orientation layout (e.g. produced by
+/// tools like RSEM/salmon/STAR), used by [`LibType::get_strand`] to infer a
+/// read's originating strand from its SAM flags.
+///
+/// Variant names deliberately do not follow proper CamelCase, to avoid
+/// confusion with their first term (`f`, `r`, `ff`, `fr`).
 #[derive(Clone, Debug, Copy, Eq, Hash, PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum LibType {
@@ -147,6 +169,13 @@ pub enum LibType {
     Invalid,
 }
 
+/// Parses a [`LibType`] variant from its name (e.g. `"frFirstStrand"`).
+///
+/// Unlike [`LibType::from_str`], this does not return a `Result`.
+///
+/// # Panics
+/// Panics (via `unreachable!()`) if `item` does not match any known
+/// library type name (`"Unstranded"` and `"Invalid"` are not accepted here).
 impl From<&str> for LibType {
     fn from(item: &str) -> Self {
         match item {
@@ -173,9 +202,14 @@ impl From<&str> for LibType {
 // with branch prediction this should be fast.
 
 impl LibType {
-    /// if it can identify the strand using the librairy layout, return an Option<Strand> else return None,
-    ///  user can use the Strand::NA, as a filer.
-    /// This is a design decition to make suer user understand that this function my fail to assign a strand
+    /// Infers the strand of a read from its SAM `flag` bits, given this
+    /// library's layout.
+    ///
+    /// Returns `Some(Strand)` (which may be `Strand::NA` for layouts that are
+    /// always unstranded) when the flag combination is recognized for this
+    /// library type, or `None` when it is not. Returning `Option` rather than
+    /// always producing a `Strand` is intentional, so callers cannot ignore
+    /// the possibility that a read's strand could not be assigned.
     pub fn get_strand(self: &Self, flag: u16) -> Option<Strand> {
         match self {
             LibType::Unstranded => {

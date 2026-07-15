@@ -1,3 +1,10 @@
+//! CLI that annotates each read in a BAM file with its inferred transcript strand.
+//!
+//! Given an indexed input BAM and a library type (e.g. `frFirstStrand`), reads
+//! are classified using [`strand_specifier_lib::LibType::get_strand`] from their
+//! SAM flags, and the result (`+`, `-`, or `NA`) is stored in a custom `SF` aux
+//! tag on each record before writing it to the output BAM.
+
 use clap::Parser;
 use rust_htslib::bam::record::Record;
 use rust_htslib::bam::{record, Header, HeaderView, IndexedReader, Read, Reader, Writer};
